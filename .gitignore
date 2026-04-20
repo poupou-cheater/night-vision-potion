@@ -1,0 +1,27 @@
+# Gradle build output
+.gradle/
+build/
+out/
+
+# Kotlin/Java compile caches
+.kotlin/
+**/bin/
+
+# IDE files
+.idea/
+*.iml
+
+# Runtime/dev output
+run/
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Keep Gradle wrapper and project sources tracked
+!gradle/wrapper/gradle-wrapper.properties
+!gradle/wrapper/gradle-wrapper.jar
+!gradlew
+!gradlew.bat
+!src/**

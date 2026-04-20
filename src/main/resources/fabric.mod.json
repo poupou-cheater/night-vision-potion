@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "id": "night_vision_potion",
+  "version": "${version}",
+  "name": "night vision potion",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "icon": "assets/night_vision_potion/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "fabric-datagen": [
+      "poupou.night_vision_potion.client.Night_vision_potionDataGenerator"
+    ],
+    "client": [
+      "poupou.night_vision_potion.client.Night_vision_potionClient"
+    ],
+    "modmenu": [
+      "poupou.night_vision_potion.client.NightVisionModMenu"
+    ],
+    "main": [
+      "poupou.night_vision_potion.Night_vision_potion"
+    ]
+  },
+  "mixins": [
+    "night_vision_potion.mixins.json",
+    {
+      "config": "night_vision_potion.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-language-kotlin": ">=${kotlin_loader_version}",
+    "fabric-api": "*",
+    "minecraft": "${minecraft_version}"
+  },
+  "suggests": {
+    "modmenu": "*"
+  }
+}
