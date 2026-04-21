@@ -11,8 +11,8 @@ class Night_vision_potionClient : ClientModInitializer {
 
     companion object {
         private const val CHECK_INTERVAL_TICKS = 20
-        private const val EFFECT_DURATION_TICKS = 240
-        private const val REAPPLY_THRESHOLD_TICKS = 220
+        private const val EFFECT_DURATION_TICKS = 420
+        private const val REAPPLY_THRESHOLD_TICKS = 400
     }
 
     override fun onInitializeClient() {
