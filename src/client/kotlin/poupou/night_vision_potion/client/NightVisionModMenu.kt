@@ -82,6 +82,32 @@ private class NightVisionConfigScreen(parent: Screen?) : Screen(Text.literal("Ni
                     },
                     valueText = { Text.empty() }
                 )
+
+                addToggleRow(
+                    rowY = layout.listY + layout.rowHeight * 3,
+                    toggleX = layout.toggleX,
+                    toggleWidth = layout.toggleWidth,
+                    valueX = layout.valueX,
+                    valueWidth = layout.valueWidth,
+                    checked = { NightVisionClientConfig.shouldNoFallDamage() },
+                    onToggle = {
+                        NightVisionClientConfig.setNoFallDamage(!NightVisionClientConfig.shouldNoFallDamage())
+                    },
+                    valueText = { Text.empty() }
+                )
+
+                addToggleRow(
+                    rowY = layout.listY + layout.rowHeight * 4,
+                    toggleX = layout.toggleX,
+                    toggleWidth = layout.toggleWidth,
+                    valueX = layout.valueX,
+                    valueWidth = layout.valueWidth,
+                    checked = { NightVisionClientConfig.shouldAntiHunger() },
+                    onToggle = {
+                        NightVisionClientConfig.setAntiHunger(!NightVisionClientConfig.shouldAntiHunger())
+                    },
+                    valueText = { Text.empty() }
+                )
             }
         }
 
@@ -248,6 +274,8 @@ private class NightVisionConfigScreen(parent: Screen?) : Screen(Text.literal("Ni
     private fun drawOtherLabels(context: DrawContext, layout: Layout) {
         context.drawTextWithShadow(textRenderer, Text.literal("Suppr. effets négatifs"), layout.labelX, layout.listY + layout.rowHeight + 6, 0xFFE6EAF0.toInt())
         context.drawTextWithShadow(textRenderer, Text.literal("Suppr. couleur Nether"), layout.labelX, layout.listY + layout.rowHeight * 2 + 6, 0xFFE6EAF0.toInt())
+        context.drawTextWithShadow(textRenderer, Text.literal("No fall damage"), layout.labelX, layout.listY + layout.rowHeight * 3 + 6, 0xFFE6EAF0.toInt())
+        context.drawTextWithShadow(textRenderer, Text.literal("Anti hunger"), layout.labelX, layout.listY + layout.rowHeight * 4 + 6, 0xFFE6EAF0.toInt())
     }
 
     private fun drawPotionScrollBar(context: DrawContext, layout: Layout) {

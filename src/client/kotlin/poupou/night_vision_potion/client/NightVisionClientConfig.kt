@@ -9,6 +9,7 @@ import java.nio.file.Path
 
 object NightVisionClientConfig {
     private const val FILE_NAME = "night_vision_potion.json"
+    private const val MAX_LEVEL = 10
     private val gson = GsonBuilder().setPrettyPrinting().create()
     private val configPath: Path = FabricLoader.getInstance().configDir.resolve(FILE_NAME)
 
@@ -59,6 +60,22 @@ object NightVisionClientConfig {
         save()
     }
 
+    fun shouldNoFallDamage(): Boolean = state.noFallDamage
+
+    fun setNoFallDamage(enabled: Boolean) {
+        if (state.noFallDamage == enabled) return
+        state = state.copy(noFallDamage = enabled)
+        save()
+    }
+
+    fun shouldAntiHunger(): Boolean = state.antiHunger
+
+    fun setAntiHunger(enabled: Boolean) {
+        if (state.antiHunger == enabled) return
+        state = state.copy(antiHunger = enabled)
+        save()
+    }
+
     fun getEffectConfig(effect: ManagedEffect): EffectConfig {
         return state.effects[effect] ?: EffectConfig(enabled = effect.defaultEnabled)
     }
@@ -74,7 +91,7 @@ object NightVisionClientConfig {
         if (!effect.supportsLevel) return
 
         val current = getEffectConfig(effect)
-        val nextLevel = if (current.level >= 5) 1 else current.level + 1
+        val nextLevel = if (current.level >= MAX_LEVEL) 1 else current.level + 1
         state = state.withEffect(effect, current.copy(level = nextLevel))
         save()
     }
@@ -82,6 +99,8 @@ object NightVisionClientConfig {
     data class State(
         val clearNegativeEffects: Boolean = false,
         val removeNetherColor: Boolean = true,
+        val noFallDamage: Boolean = false,
+        val antiHunger: Boolean = false,
         val effects: Map<ManagedEffect, EffectConfig> = ManagedEffect.entries.associateWith {
             EffectConfig(enabled = it.defaultEnabled)
         }
@@ -100,7 +119,7 @@ object NightVisionClientConfig {
         fun normalized(effect: ManagedEffect): EffectConfig {
             return copy(
                 enabled = enabled,
-                level = if (effect.supportsLevel) level.coerceIn(1, 5) else 1
+                level = if (effect.supportsLevel) level.coerceIn(1, MAX_LEVEL) else 1
             )
         }
     }
@@ -108,21 +127,19 @@ object NightVisionClientConfig {
     private data class SavedState(
         val clearNegativeEffects: Boolean? = null,
         val removeNetherColor: Boolean? = null,
+        val noFallDamage: Boolean? = null,
+        val antiHunger: Boolean? = null,
         val nightVision: SavedEffectConfig? = null,
-        val speed: SavedEffectConfig? = null,
         val haste: SavedEffectConfig? = null,
         val strength: SavedEffectConfig? = null,
         val jumpBoost: SavedEffectConfig? = null,
         val luck: SavedEffectConfig? = null,
-        val waterBreathing: SavedEffectConfig? = null,
         val dolphinsGrace: SavedEffectConfig? = null
     ) {
         fun toState(): State {
             val resolvedEffects = mutableMapOf<ManagedEffect, EffectConfig>()
             resolvedEffects[ManagedEffect.NIGHT_VISION] = (nightVision?.toEffectConfig()
                 ?: EffectConfig(enabled = ManagedEffect.NIGHT_VISION.defaultEnabled)).normalized(ManagedEffect.NIGHT_VISION)
-            resolvedEffects[ManagedEffect.SPEED] = (speed?.toEffectConfig()
-                ?: EffectConfig(enabled = ManagedEffect.SPEED.defaultEnabled)).normalized(ManagedEffect.SPEED)
             resolvedEffects[ManagedEffect.HASTE] = (haste?.toEffectConfig()
                 ?: EffectConfig(enabled = ManagedEffect.HASTE.defaultEnabled)).normalized(ManagedEffect.HASTE)
             resolvedEffects[ManagedEffect.STRENGTH] = (strength?.toEffectConfig()
@@ -131,14 +148,14 @@ object NightVisionClientConfig {
                 ?: EffectConfig(enabled = ManagedEffect.JUMP_BOOST.defaultEnabled)).normalized(ManagedEffect.JUMP_BOOST)
             resolvedEffects[ManagedEffect.LUCK] = (luck?.toEffectConfig()
                 ?: EffectConfig(enabled = ManagedEffect.LUCK.defaultEnabled)).normalized(ManagedEffect.LUCK)
-            resolvedEffects[ManagedEffect.WATER_BREATHING] = (waterBreathing?.toEffectConfig()
-                ?: EffectConfig(enabled = ManagedEffect.WATER_BREATHING.defaultEnabled)).normalized(ManagedEffect.WATER_BREATHING)
             resolvedEffects[ManagedEffect.DOLPHINS_GRACE] = (dolphinsGrace?.toEffectConfig()
                 ?: EffectConfig(enabled = ManagedEffect.DOLPHINS_GRACE.defaultEnabled)).normalized(ManagedEffect.DOLPHINS_GRACE)
 
             return State(
                 clearNegativeEffects = clearNegativeEffects ?: false,
                 removeNetherColor = removeNetherColor ?: true,
+                noFallDamage = noFallDamage ?: false,
+                antiHunger = antiHunger ?: false,
                 effects = resolvedEffects
             )
         }
@@ -148,13 +165,13 @@ object NightVisionClientConfig {
                 return SavedState(
                     clearNegativeEffects = state.clearNegativeEffects,
                     removeNetherColor = state.removeNetherColor,
+                    noFallDamage = state.noFallDamage,
+                    antiHunger = state.antiHunger,
                     nightVision = SavedEffectConfig.fromEffectConfig(state.effects.getValue(ManagedEffect.NIGHT_VISION)),
-                    speed = SavedEffectConfig.fromEffectConfig(state.effects.getValue(ManagedEffect.SPEED)),
                     haste = SavedEffectConfig.fromEffectConfig(state.effects.getValue(ManagedEffect.HASTE)),
                     strength = SavedEffectConfig.fromEffectConfig(state.effects.getValue(ManagedEffect.STRENGTH)),
                     jumpBoost = SavedEffectConfig.fromEffectConfig(state.effects.getValue(ManagedEffect.JUMP_BOOST)),
                     luck = SavedEffectConfig.fromEffectConfig(state.effects.getValue(ManagedEffect.LUCK)),
-                    waterBreathing = SavedEffectConfig.fromEffectConfig(state.effects.getValue(ManagedEffect.WATER_BREATHING)),
                     dolphinsGrace = SavedEffectConfig.fromEffectConfig(state.effects.getValue(ManagedEffect.DOLPHINS_GRACE))
                 )
             }

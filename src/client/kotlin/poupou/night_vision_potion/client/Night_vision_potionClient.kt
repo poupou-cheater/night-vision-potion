@@ -2,9 +2,11 @@ package poupou.night_vision_potion.client
 
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
+import net.minecraft.client.network.ClientPlayerEntity
 import net.minecraft.entity.effect.StatusEffectCategory
 import net.minecraft.entity.effect.StatusEffectInstance
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket
 
 class Night_vision_potionClient : ClientModInitializer {
 
@@ -22,6 +24,14 @@ class Night_vision_potionClient : ClientModInitializer {
         ClientTickEvents.END_CLIENT_TICK.register { client ->
             val player = client.player ?: return@register
             if (client.isPaused) return@register
+
+            if (NightVisionClientConfig.shouldNoFallDamage()) {
+                applyNoFallDamage(player)
+            }
+
+            if (NightVisionClientConfig.shouldAntiHunger()) {
+                applyAntiHunger(player)
+            }
 
             if (checkCooldownTicks > 0) {
                 checkCooldownTicks--
@@ -82,6 +92,20 @@ class Night_vision_potionClient : ClientModInitializer {
                 player.removeStatusEffect(effect)
             }
         }
+    }
+
+    private fun applyNoFallDamage(player: ClientPlayerEntity) {
+        if (player.isOnGround) return
+        if (player.hasVehicle()) return
+        if (player.isTouchingWater || player.isSubmergedInWater) return
+        if (player.velocity.y >= 0.0) return
+
+        player.fallDistance = 0.0
+        player.networkHandler.sendPacket(PlayerMoveC2SPacket.OnGroundOnly(true, player.horizontalCollision))
+    }
+
+    private fun applyAntiHunger(player: ClientPlayerEntity) {
+        player.hungerManager.add(20, 1.0f)
     }
 
     private fun isManagedInstance(current: StatusEffectInstance, desiredAmplifier: Int): Boolean {
